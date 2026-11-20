@@ -342,7 +342,12 @@ alter table public.messages        enable row level security;
 -- Access list: admins only.
 create policy "admins manage access list" on public.allowed_emails
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
+-- Table access for signed-in users. Some newer Supabase projects don't grant
+-- this automatically. The policies below still decide what each person can do.
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on all tables in schema public to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
+grant execute on all functions in schema public to authenticated;
 -- Profiles: members see the team; you can rename yourself (roles change via SQL).
 create policy "members read profiles" on public.profiles
   for select to authenticated using (public.is_member());
